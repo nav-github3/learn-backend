@@ -9,7 +9,7 @@ export const connectDb = async() => {
 		console.log(`MongoDb Connectesd !! DB HOST : ${connectionInstance.connection.host}`)
 	}
 	catch(err) {
-		console.log('MongoDb connecction error ', err)
+		console.log('MongoDb connecction FAILED  ', err)
 		process.exit(1)
 	} 
 }
