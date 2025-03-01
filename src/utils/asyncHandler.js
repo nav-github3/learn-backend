@@ -1,7 +1,7 @@
 
 // Async Handler using Promise and catch block
 
-const asyncHandler = fn => (err, req, res, next) =>{
+const asyncHandler = fn => return(err, req, res, next) =>{
 	Promise.resolve(fn(req, res, next)).catch( err => { 
 		console.log(err)
 		res.status(500).json({
@@ -10,6 +10,9 @@ const asyncHandler = fn => (err, req, res, next) =>{
 		})
 	})
 }
+
+
+export {asyncHandler}
 
 // Async Handler ussing try catch block
 
