@@ -1,7 +1,11 @@
 
-import User from '../models/user.model.js';
-import ApiError from '../utils/apiError';
+import { User } from '../models/user.model.js';
+import { ApiError } from '../utils/ApiError.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 import { uploadImage } from '../utils/cloudinary.js';
+import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
+
 
 import asyncHandler from '../utils/asyncHandler.js';
 
@@ -54,5 +58,10 @@ console.log("req.files", req.files);
 if(!avataLocalPath || !coverImageLocalPath) {
 	throw new ApiError(400, "Avatar and cover image are required");
 }
+
+
+
+
+
 
 export { registerUser };
