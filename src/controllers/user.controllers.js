@@ -1,7 +1,9 @@
-import ApiHandler from '../utils/apiHandler';
-import User from '../models/user.model';
 
-import asyncHandler from 'express-async-handler';
+import User from '../models/user.model.js';
+import ApiError from '../utils/apiError';
+import { uploadImage } from '../utils/cloudinary.js';
+
+import asyncHandler from '../utils/asyncHandler.js';
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -24,6 +26,33 @@ const registerUser = asyncHandler(async (req, res) => {
 const { username, email, fullName, password } = req.body;
 console.log(req.body);
 
+
+//check for empty fields
+if (!username || !email || !fullName || !password) {
+	throw new ApiError(400,"Please fill all the fields");
+}
+
+
+//check if the user already exists
+//check the value what even required under array 
+const existedUser = await User.findOne({
+	$or: [{ email }, { username }]
+	});
+
+	if(existedUser) {
+		throw new ApiError(400, "User already exists");
+	}
 });
+
+
+//check for avatar and coverimage and validate 
+
+const avataLocalPath = req.files?.avatar?.[0]?.path;
+const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+console.log("req.files", req.files);
+
+if(!avataLocalPath || !coverImageLocalPath) {
+	throw new ApiError(400, "Avatar and cover image are required");
+}
 
 export { registerUser };
