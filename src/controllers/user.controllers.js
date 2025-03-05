@@ -1,13 +1,10 @@
 
-import { User } from '../models/user.model.js';
-import { ApiError } from '../utils/ApiError.js';
+import  User  from '../models/user.model.js';
+import ApiErorr from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { uploadImage } from '../utils/cloudinary.js';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-
-
-import asyncHandler from '../utils/asyncHandler.js';
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -49,19 +46,14 @@ const existedUser = await User.findOne({
 });
 
 
-//check for avatar and coverimage and validate 
-
-const avataLocalPath = req.files?.avatar?.[0]?.path;
+// Check for avatar and cover image and validate
+const avatarLocalPath = req.files?.avatar?.[0]?.path;
 const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 console.log("req.files", req.files);
 
-if(!avataLocalPath || !coverImageLocalPath) {
+if (!avatarLocalPath || !coverImageLocalPath) {
 	throw new ApiError(400, "Avatar and cover image are required");
 }
-
-
-
-
 
 
 export { registerUser };
