@@ -43,17 +43,21 @@ const existedUser = await User.findOne({
 	if(existedUser) {
 		throw new ApiError(400, "User already exists");
 	}
+
+
+
+	// Check for avatar and cover image and validate
+	const avatarLocalPath = req.files?.avatar?.[0]?.path;
+	const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+	console.log("req.files", req.files);
+
+	if (!avatarLocalPath || !coverImageLocalPath) {
+		throw new ApiError(400, "Avatar and cover image are required");
+	}
+
 });
 
 
-// Check for avatar and cover image and validate
-const avatarLocalPath = req.files?.avatar?.[0]?.path;
-const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
-console.log("req.files", req.files);
-
-if (!avatarLocalPath || !coverImageLocalPath) {
-	throw new ApiError(400, "Avatar and cover image are required");
-}
 
 
 export { registerUser };
