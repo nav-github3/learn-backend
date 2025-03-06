@@ -15,6 +15,7 @@ import fs from 'fs';
     const uploadImage = async (path) => {
         try {
             const res = await cloudinary.uploader.upload(path);
+            console.log("file has been uploaded on clodinary", res.url)
             return res.secure_url;
         } catch (error) {
             console.log(error);

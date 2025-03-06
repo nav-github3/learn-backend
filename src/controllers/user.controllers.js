@@ -55,6 +55,13 @@ const existedUser = await User.findOne({
 		throw new ApiError(400, "Avatar and cover image are required");
 	}
 
+
+	// Upload on Clodimnay 
+	const avatarUploadResult = await uploadonCloudinary(avatarLocalPath); 
+	const coverImageUploadResult = await uploadonCloudinary(coverImageLocalPath); 
+
+	
+
 });
 
 
