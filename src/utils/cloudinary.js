@@ -22,5 +22,4 @@ import fs from 'fs';
         }
     };
 
-
-    export { uploadImage };
+export {uploadImage}
