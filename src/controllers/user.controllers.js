@@ -1,6 +1,6 @@
 
 import  User  from '../models/user.model.js';
-import ApiErorr from '../utils/ApiError.js';
+import {ApiError} from '../utils/ApiError.js'
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { uploadImage } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiRsponse.js';
