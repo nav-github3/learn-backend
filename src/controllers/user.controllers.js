@@ -93,7 +93,4 @@ const existedUser = await User.findOne({
 
 });
 
-
-
-
 export { registerUser };
