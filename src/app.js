@@ -1,7 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import bodyParser from "body-parser";
 const app = express();
 
 
@@ -14,7 +13,8 @@ app.use(cors( {
 app.use(cookieParser());
 
 //covert the encoded data comming from the client to json
-app.use(express.json({extended: true , limit: "16kb"})); 
+app.use(express.urlencoded({extended: true , limit: "16kb"})); 
+
 
 // limit the size of the request body to 16kb
 app.use(express.json({limit : "16kb"}));   
@@ -28,7 +28,7 @@ app.use(express.static("public"));
 import userRouter from './routes/user.routes.js'
 
 //use the router
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/users", userRouter)
 
 
 
