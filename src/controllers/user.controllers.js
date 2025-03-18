@@ -1,8 +1,8 @@
 
-import  User  from '../models/user.model.js';
+import  { User }   from '../models/user.model.js';
 import {ApiError} from '../utils/ApiError.js'
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { ApiResponse } from '../utils/ApiRsponse.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import jwt from "jsonwebtoken"
 import mongoose from 'mongoose';
@@ -29,16 +29,16 @@ const { username, email, fullName, password } = req.body;
 console.log(req.body);
 
 
-//check for empty fields
-if (!username || !email || !fullName || !password) {
-	throw new ApiError(400,"Please fill all the fields");
+if (
+	[fullName, email, username, password].some((field) => field?.trim() === "")
+) {
+	throw new ApiError(400, "All fields are required")
 }
-
 
 //check if the user already exists
 //check the value what even required under array 
 const existedUser = await User.findOne({
-	$or: [{ email }, { username }]
+	$or: [{ username }, { email }]
 	});
 
 	if(existedUser) {
@@ -75,8 +75,7 @@ const existedUser = await User.findOne({
 		email, 
 		fullName, 
 		password,
-		avatar : avatarUploadResult.secure_url,
-		coverImage : coverImageUploadResult.secure_url
+		avatar : avatarUploadResult.url?.url || "",
 
 	})
 	

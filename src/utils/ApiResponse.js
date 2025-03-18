@@ -1,17 +1,11 @@
 class ApiResponse {
-	constructor(success, message, data = null) {
-	  this.success = success;
+	constructor(statusCode, message, data = null) {
+	  this.statusCode = success;
 	  this.message = message;
 	  this.data = data;
+	  this.sucess = statusCode < 400
 	}
   
-	static success(message, data = null) {
-	  return new ApiResponse(true, message, data);
-	}
-  
-	static error(message, data = null) {
-	  return new ApiResponse(false, message, data);
-	}
   }
   
   export {  ApiResponse };

@@ -74,7 +74,7 @@ userSchema.methods.isPasswordMatch = async function(enteredPassword) {
 
 // Method to generate access token
 userSchema.methods.generateAccessToken = function() {
-  const accessToken = jwt.sign({ _id: this._id, username: this.username }, process.env.ACCESS_TOKEN_SECRET, {
+  const accessToken = jwt.sign({ _id: this._id, username: this.username , email : this.email, fullName : this.fullName }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_SECRET_EXPIRE // Token expiration time
   });
   return accessToken;
@@ -88,5 +88,4 @@ userSchema.methods.generateRefreshToken = function() {
   return refreshToken;
 };
 
-const User = mongoose.model('User', userSchema);
-export default User;
+export const User = mongoose.model('User', userSchema);
