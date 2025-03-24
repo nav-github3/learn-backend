@@ -12,7 +12,7 @@ const asyncHandler = fn => (err, req, res, next) =>{
 }
 
 
-export {asyncHandler}
+export { asyncHandler }
 
 // Async Handler ussing try catch block
 

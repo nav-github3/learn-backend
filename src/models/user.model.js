@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { Schema } from "zod";
 
 const userSchema = new mongoose.Schema({
   watchHistory: {
@@ -31,7 +32,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: [true, 'password is required']
   },
   refreshToken: {
     type: String,
@@ -87,5 +88,8 @@ userSchema.methods.generateRefreshToken = function() {
   });
   return refreshToken;
 };
+
+
+
 
 export const User = mongoose.model('User', userSchema);
