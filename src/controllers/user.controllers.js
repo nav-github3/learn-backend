@@ -154,4 +154,7 @@ catch(error) {
 }
 
 
- export { registerUser }; 
+ export { registerUser, 
+  loginUser,
+  loggOutUser,
+  }; 
