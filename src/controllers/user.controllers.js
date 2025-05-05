@@ -59,78 +59,99 @@ const registerUser = asyncHandler(async (req, res) => {
 
 })
 
-
-  // Todo list 
-  
-  const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async(req, res) => {
     
-    //1. get the username, password  and email 
-    const { username, email, password} = req.body; 
+  const {username , email , password } = req.body; 
 
-    if(!username || !email){
-      throw new ApiError(400, 'username and password is required '); 
-    }
-
-    //2. check email or password 
-    const user = await User.findOne({ $or: [{username} , {email}] }); 
-    
-    if(!user){
-      throw new ApiError(404 , 'username or email not find ')
-    }
-
-    //3. Check Password 
-
-    const isPasswordValid = await user.isPasswordMatch(password); 
-
-    if(!isPasswordValid){
-      throw new ApiError(401, ' Invalid user credentails '); 
-    }
-
-
-    //4. Generate accessToken and refreshToken  
-    const { accessToken , refreshToken } = await generateAccessTokenAndRefreshToken(user._id); 
-
-    const logedInUser = user.findById(user._id).select("-password -refreshToken"); 
-
-    //5. Send thhrough cookies 
-
-    const option ={
-      httpOnly : true, 
-      secure : true
-    }
-
-    return res.status(200)
-    .cookie("accessToken" , accessToken , options) 
-    .cookie("refreshToken" , refreshToken , options) 
-    .json(
-      new ApiResponse( 200 , {
-          user : logedInUser, accessToken , refreshToken
-      } , "User logedIn Successfully ")
-    )
-
-  })
-
-
-  const generateAccessTokenAndRefreshToken = async(userId) => {
-
-    try{
-      const user = await User.findById(userId); 
-      const accessToken = user.generateAccessToken(); 
-      const refreshToken = user.generateRefreshToken(); 
-      
-      //save refreshToken to databases 
-      user.refreshToken = refreshToken; 
-      await user.save({validateBeforeSave : false })
-
-      return { accessToken, refreshToken }
-
-    } 
-      catch(err){
-        throw new ApiError(501, " Something went wrong while generateToken and refreshToken ")
-      }
-
+  if(!(username || email)){
+    throw new ApiError(4000, "Username or email required for login "); 
   }
 
+  //check user already exists or not 
+  const user = await User.findOne({ $or : [{username}, {email}]})
+  if(!user){
+    throw new ApiError(401, " Invalid username or email "); 
+  }
+
+  //check password 
+  const isPasswordValid = await user.isPasswordMatch(password); 
+
+  if(!isPasswordValid){
+     throw new ApiError(401 ,  " Invalid password ")
+  }; 
+
+
+  //generate accessToken and refreshToken 
+
+  const { accessToken , refreshToken } = await generateAccessTokenAndRefreshToken(user._id); 
+
+  const logedInUser = await User.findById(user._id).select( "-password -refreshToeken"); 
+
+
+  //send throw cookies 
+
+  const options = {
+    httpOnly : true, 
+    secure : true
+  }
+
+
+  return res.status(200)
+  .cookie("accessToken", accessToken , options)
+  .cookie("refreshToken", refreshToken, options)
+  .json( new ApiResponse(200, {
+      user : logedInUser, refreshToken , accessToken
+  }, " User logged in successfully ")); 
+
+})
+
+
+const loggOutUser = asyncHandler(async (req, res) => {
+
+
+  // 🧠 Step 1: Remove the refresh token from the user’s document in MongoDB
+  // `$unset` removes the `refreshToken` field from the user
+  await User.findByIdAndUpdate(req.user._id, {
+    $unset: { refreshToken: 1 }
+  }, {
+    new: true // return the updated document (optional, not used here)
+  });
+
+
+
+  // 🧹 Step 2: Clear the cookies from the client (browser)
+  // This ensures the user cannot reuse tokens stored in cookies
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+
+
+  // ✅ Step 3: Send a response to the client indicating successful logout
+  return res.status(200).json(
+    new ApiResponse(200, {}, "User logged out successfully")
+  );
+});
+
+
+
+
+const generateAccessTokenAndRefreshToken = async(userId)=>{   
+try {
+  const user = await User.findById(userId);
+  const accessToken  = user.generateAccessToken(); 
+  const refreshToken = user.generateRefreshToken(); 
+
+  //save refrshToken in database 
+  user.refreshToken = refreshToken; 
+  await user.save({validateBeforeSave : false});
+  
+  return { accessToken , refreshToken };
+}
+
+catch(error) {
+  throw new ApiError(501 , "Something went wrong while generating access token and refresh token "); 
+}
+}
 
 
  export { registerUser }; 
