@@ -112,7 +112,7 @@ import jwt from "jsonwebtoken"
   const loginUser = asyncHandler(async (req, res) => {
       // 1. Todo list 
       // 2. get the username or email from the user 
-      // 3. check weather user is presen or not 
+      // 3. check weather user is present or not 
       // 4. check password check 
       // 5. access and refresh token generation 
       // 6. send cookie secure cookie 
@@ -146,7 +146,7 @@ import jwt from "jsonwebtoken"
       //5. Send through cookies
       
       const options = {
-        httpOnly : true, //access through server 
+        httpOnly : true, //access through server n
         secure : true
       }
 
