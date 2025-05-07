@@ -367,7 +367,96 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 
 
 
+const getChannelProfile = asyncHandler(async(req, res, next) => {
+  
+  //get the user 
+    const { username } = req.params;
+    if(!username?.trin()) {
+      throw new ApiError(400 ,  " username is missing "); 
+    }
 
+
+    //user aggregation peipelinews here 
+    const channel = await User.aggregate([
+      {
+        $match : {
+          username : username?.toLowerCase()
+        }
+      }, 
+
+      // find weather fieled is subscriber and subscribed   
+
+      {
+        $lookup : {
+          from : "subscriptions",
+          localField : "_id",
+          foreignField : "channel", 
+          as : "subscribers"
+        }
+      },
+      
+      {
+        $lookup : {
+          rom : "subscriptions",
+          localField : "_id",
+          foreignField : "subscriber",
+          as : "subscribers"
+        }
+      }, 
+
+      
+      // added the number suncribers and subribed to 
+      //$size : calculat the number 
+      //$condition contain three files if, then , else 
+      //$in : go inside the object/array what we had creaded 
+      {
+        $addFields : {
+          subscriberCount : {
+            $size: "$subscribers"
+          } ,
+          
+          channelSubscibedToCount : {
+            $size : "$subscribeTo",
+          }, 
+
+
+          // for subscibed button - weather it is subcribed or not 
+          isSubscribed : {
+            $condition : {
+              if : { $in : [req.user?._id ,"$subscribers.subscriber"] }
+            }, 
+            then : true, 
+            else : false
+          }
+        }
+      }, 
+      
+       // $project is use to give the selected things 
+      {
+        $project : {
+          fullName : 1, 
+          username : 1, 
+          subscriberCount : 1, 
+          channelSubscibedToCount : 1,
+          isSubscribed : 1, 
+          avatar : 1, 
+          coverImage : 1, 
+          email : 1
+        }
+      }    
+      
+    ])
+
+    if(!channel?.length){
+      throw new ApiError(404 , "Channel doesnot exists ");
+    }
+
+
+    return res.status(200).json(
+      new ApiResponse(200 , channel[0] , "Channel profile fetched successfully")
+    )
+
+})
 
 export { 
   registerUser, 
