@@ -4,6 +4,7 @@ import { User } from "../models/user.models.js"
 import { uploadOnCloudinary  } from "../utils/cloudinary.js"
 import { ApiResponse  } from "../utils/ApiRespose.js";
 import jwt from "jsonwebtoken"
+import { upload } from "../middlewares/multer.middleware.js";
   
 
   // 1. get user details from frontend / postman 
@@ -299,6 +300,73 @@ const updateUserDetails = asyncHandler(async (req, res) => {
 })
 
 
+const updateAvatar = asyncHandler(async (req, res) => {
+
+const avatarLocalpath = req.file?.path;
+if(!avatarLocalpath) {
+  throw new ApiError(400, "Avatar is required")
+}
+
+// upload on cloudinary
+const avatar = await uploadOnCloudinary(avatarLocalpath);
+  if(!avatar) {
+    throw new ApiError(400, "Avatar is not  uploaded peoperly")
+  }
+
+
+//3. upadte the user 
+const user = await User.findByIdAndUpdate(req.user._id, 
+  {
+    $set : {
+      avatar : avatar.url
+    }
+  },   
+  {
+    new : true
+  }).select("-password");
+
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "Avatar updated successfully")
+  )
+
+})
+
+
+
+const updateCoverImage = asyncHandler(async (req, res) => {
+
+
+  const coverImageLocalpath = req.file?.path;
+  if(!coverImageLocalpath) {
+    throw new ApiError(400, "Cover image is required")
+  }
+
+  //upload on cloudinary
+  const coverImage = await uploadOnCloudinary(coverImageLocalpath); 
+  if(!coverImage) {
+    throw new ApiError(400, "Cover image is not  uploaded peoperly")
+  }
+
+  //3. upadte the user
+  User.findByIdAndUpdate(req.user._id, 
+    {
+      $set :{
+        coverImage : coverImage.url
+      }
+    }, 
+    { new : true}
+  ).select("-password");
+
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "Cover image updated successfully")
+  )
+
+})
+
+
+
 
 
 export { 
@@ -307,7 +375,9 @@ export {
   logoutUser, 
   refreshAccessToken, 
   changeCurrentPassowrd, 
-  updateUserDetails
+  updateUserDetails, 
+  updateAvatar, 
+  updateCoverImage
 
 };
 
