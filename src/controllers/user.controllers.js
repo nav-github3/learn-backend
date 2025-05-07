@@ -349,7 +349,7 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   }
 
   //3. upadte the user
-  User.findByIdAndUpdate(req.user._id, 
+  const user = await User.findByIdAndUpdate(req.user._id, 
     {
       $set :{
         coverImage : coverImage.url
@@ -371,7 +371,7 @@ const getChannelProfile = asyncHandler(async(req, res, next) => {
   
   //get the user 
     const { username } = req.params;
-    if(!username?.trin()) {
+    if(!username?.trim()) {
       throw new ApiError(400 ,  " username is missing "); 
     }
 
@@ -397,7 +397,7 @@ const getChannelProfile = asyncHandler(async(req, res, next) => {
       
       {
         $lookup : {
-          rom : "subscriptions",
+          from : "subscriptions",
           localField : "_id",
           foreignField : "subscriber",
           as : "subscribers"
