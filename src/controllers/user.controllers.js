@@ -154,7 +154,8 @@ import jwt from "jsonwebtoken"
       .cookie( "accessToken" , accessToken , options)
       .cookie("refreshToken" , refreshToken , options)
       .json(
-        new ApiResponse( 200 , {
+        new ApiResponse( 
+          200 , {
           user : loggedInUser , accessToken , refreshToken
         }, "User loggein successfully ")
       )
@@ -163,7 +164,7 @@ import jwt from "jsonwebtoken"
 
 
   const logoutUser = asyncHandler(async (req, res) => {
-      User.findByIdAndUpdate(req.user_id,
+      await User.findByIdAndUpdate(req.user_id,
         {
         $set : {
           refreshToken : undefined
