@@ -1,1 +1,1 @@
-export const dbName = "Users"
+export const dbName = "videoTube"
