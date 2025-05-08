@@ -400,7 +400,7 @@ const getChannelProfile = asyncHandler(async(req, res, next) => {
           from : "subscriptions",
           localField : "_id",
           foreignField : "subscriber",
-          as : "subscribers"
+          as : "subscribeTo"
         }
       }, 
 
