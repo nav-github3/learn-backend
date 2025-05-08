@@ -422,7 +422,7 @@ const getChannelProfile = asyncHandler(async(req, res, next) => {
 
           // for subscibed button - weather it is subcribed or not 
           isSubscribed : {
-            $condition : {
+            $cond: {
               if : { $in : [req.user?._id ,"$subscribers.subscriber"] }
             }, 
             then : true, 
