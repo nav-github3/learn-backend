@@ -1,95 +1,108 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import { Schema } from "zod";
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+dotenv.config(); // Load .env variables into process.env
 
-const userSchema = new mongoose.Schema({
-  watchHistory: {
-    type: [String], // Assuming watchHistory is an array of strings (e.g., video IDs)
-    default: []
+const userSchema = new Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    fullName: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+    avatar: {
+      type: String, // Cloudinary URL
+      required: true,
+    },
+    coverImage: {
+      type: String, // Cloudinary URL
+    },
+    watchHistory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Video",
+      },
+    ],
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+    },
+    refreshToken: {
+      type: String,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  fullName: {
-    type: String,
-    required: true
-  },
-  avatar: {
-    type: String, // URL to the avatar image
-    default: ''
-  },
-  coverImage: {
-    type: String, // URL to the cover image
-    default: ''
-  },
-  password: {
-    type: String,
-    required: [true, 'password is required']
-  },
-  refreshToken: {
-    type: String,
-    default: ''
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  {
+    timestamps: false, // Disable automatic timestamps
   }
-});
-
-// Middleware to update the updatedAt field before saving
-userSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+);
 
 
+userSchema.pre("save", async function (next) {
+  if(!this.isModified("password")) return next();
 
-// Method to generate JWT token
-userSchema.pre("save", async function(next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
+  this.password = await bcrypt.hash(this.password, 10)
+  next()
+})
+
+userSchema.methods.isPasswordCorrect = async function(password){
+  return await bcrypt.compare(password, this.password)
+}
+
+userSchema.methods.generateAccessToken = function(){
+  return jwt.sign(
+      {
+          _id: this._id,
+          email: this.email,
+          username: this.username,
+          fullName: this.fullName
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+          expiresIn: process.env.ACCESS_TOKEN_SECRET_EXPIRE
+      }
+  )
+}
+userSchema.methods.generateRefreshToken = function(){
+  return jwt.sign(
+      {
+          _id: this._id,
+          
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+          expiresIn: process.env.REFRESH_TOKEN_SECRET_EXPIRE
+      }
+  )
+}
 
 
-// Method to generate JWT token
-userSchema.methods.isPasswordMatch = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+  
+  
+	
 
-
-// Method to generate access token
-userSchema.methods.generateAccessToken = function() {
-  const accessToken = jwt.sign({ _id: this._id, username: this.username , email : this.email, fullName : this.fullName }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_SECRET_EXPIRE // Token expiration time
-  });
-  return accessToken;
-};
-
-// Method to generate refresh token
-userSchema.methods.generateRefreshToken = function() {
-  const refreshToken = jwt.sign({ _id: this._id, username: this.username }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_SECRET_EXPIRE // Token expiration time
-  });
-  return refreshToken;
-};
-
-
-
-
-export const User = mongoose.model('User', userSchema);
+export const User = mongoose.model("User", userSchema);
